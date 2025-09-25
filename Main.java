@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -929,34 +930,74 @@ public class Main {
     //Ejercicio 3 – Lista de productos vendidos por cliente
     //Objetivo: Mostrar para cada cliente, todos los productos que ha comprado (sin repetidos).
 
-   Map<String, Set<String>> productoVendidosPorClientes = ventas.stream()
+   //Map<String, Set<String>> productoVendidosPorClientes = ventas.stream()
+   //.collect(Collectors.groupingBy(
+   // v -> {
+   //     Cliente cliente = clientes.stream()
+   //     .filter(cli -> cli.getId()== v.getCliente_id())
+   //     .findFirst()
+   //     .orElse(null);
+   //     return (cliente != null) ? cliente.getNombre() : "Cliente desconocido";
+   // },
+   // Collectors.flatMapping(
+   //     v -> v.getDetalles().stream()
+   //     .map(det ->{
+   //         Producto producto = productos.stream()
+   //         .filter(pro -> pro.getId() == det.getProducto_id())
+   //         .findFirst()
+   //         .orElse(null);
+   //         return (producto != null) ? producto.getNombre() : "Producto no vendido por cliente";
+   //     })
+   //     .filter(Objects::nonNull),
+   //     Collectors.toSet()
+   // )
+   //));
+   //productoVendidosPorClientes.forEach((C,P)->{
+   // System.out.println("Cliente : "+C);
+   // P.forEach(pr -> System.out.println("    - "+pr));
+   //});
+
+   //Objetivo:
+   //Mostrar para cada categoría, los 3 productos más vendidos (según la suma de cantidades en detalle_ventas).
+
+   Map<String, List<Map.Entry<String,Integer>>> top3ProductosMasVendidos = ventas.stream()
+   .flatMap(v -> v.getDetalles().stream())
    .collect(Collectors.groupingBy(
-    v -> {
-        Cliente cliente = clientes.stream()
-        .filter(cli -> cli.getId()== v.getCliente_id())
-        .findFirst()
-        .orElse(null);
-        return (cliente != null) ? cliente.getNombre() : "Cliente desconocido";
-    },
-    Collectors.flatMapping(
-        v -> v.getDetalles().stream()
-        .map(det ->{
-            Producto producto = productos.stream()
-            .filter(pro -> pro.getId() == det.getProducto_id())
+        det -> productos.stream()
+            .filter(p -> p.getId() == det.getProducto_id())
             .findFirst()
-            .orElse(null);
-            return (producto != null) ? producto.getNombre() : "Producto no vendido por cliente";
-        })
-        .filter(Objects::nonNull),
-        Collectors.toSet()
-    )
+            .map(p -> Categoria_productos.stream()
+            .filter(c-> c.getId() == p.getCategoria_id())
+            .findFirst()
+            .map(Categoria_producto::getNombre)
+            .orElse("Sin categoria"))
+        .orElse("Sin categoria"),
+        Collectors.groupingBy(
+            det -> productos.stream()
+                .filter(p -> p.getId() == det.getProducto_id())
+                .findFirst()
+                .map(Producto::getNombre)
+                .orElse("Producto desconocido"),
+                Collectors.summingInt(Detalle_venta::getCantidad)
+        )
+   ))
+   .entrySet().stream()
+   .collect(Collectors.toMap(
+        Map.Entry::getKey,
+        entry -> entry.getValue().entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .limit(3)
+            .collect(Collectors.toList())
    ));
-   productoVendidosPorClientes.forEach((C,P)->{
-    System.out.println("Cliente : "+C);
-    P.forEach(pr -> System.out.println("    - "+pr));
+   top3ProductosMasVendidos.forEach((C,L)->{
+    System.out.println("Categoria : " +C);
+    L.forEach(e -> System.out.println("     - " +e.getKey() +" = "+e.getValue()+" cantidades"));
    });
+   
+
 
     
+
 
     
     
