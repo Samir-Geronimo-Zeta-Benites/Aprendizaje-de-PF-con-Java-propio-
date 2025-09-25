@@ -993,15 +993,6 @@ public class Main {
     System.out.println("Categoria : " +C);
     L.forEach(e -> System.out.println("     - " +e.getKey() +" = "+e.getValue()+" cantidades"));
    });
-   
-
-//hola soy un cambio
-    
-
-
-    
-    
-
   }
 }
 
