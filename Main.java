@@ -960,39 +960,73 @@ public class Main {
    //Objetivo:
    //Mostrar para cada categoría, los 3 productos más vendidos (según la suma de cantidades en detalle_ventas).
 
-   Map<String, List<Map.Entry<String,Integer>>> top3ProductosMasVendidos = ventas.stream()
-   .flatMap(v -> v.getDetalles().stream())
+   //Map<String, List<Map.Entry<String, Integer>>> top3ProductosMasVendidos = ventas.stream()
+   // .flatMap(v -> v.getDetalles().stream())
+   // .collect(Collectors.groupingBy(
+   //     det -> productos.stream()
+   //         .filter(p -> p.getId() == det.getProducto_id())
+   //         .findFirst()
+   //         .map(p -> Categoria_productos.stream()
+   //             .filter(c -> c.getId() == p.getCategoria_id())
+   //             .findFirst()
+   //             .map(Categoria_producto::getNombre)
+   //             .orElse("Cateo relacionada"))
+   //         .orElse("Producto no relacionado con categoria vendida"),
+   //     Collectors.groupingBy(
+   //         det -> productos.stream()
+   //             .filter(p -> p.getId() == det.getProducto_id())
+   //             .findFirst()
+   //             .map(Producto::getNombre)
+   //             .orElse("Producto no vendido"),
+   //             Collectors.summingInt(Detalle_venta::getCantidad)
+   //     )
+   // ))
+   // .entrySet().stream()
+   // .collect(Collectors.toMap(
+   //     Map.Entry::getKey,
+   //     entry -> entry.getValue().entrySet().stream()
+   //         .sorted(Map.Entry.<String,Integer>comparingByValue().reversed())
+   //         .limit(3)
+   //         .collect(Collectors.toList())
+   // ));
+   // top3ProductosMasVendidos.forEach((C,L) -> {
+   //     System.out.println("Categoría : "+C);
+   //     L.forEach(ls -> System.out.println("    - "+ls.getKey()+ " = "+ls.getValue()+ " cantidades " ));
+   // });
+
+   //Objetivo
+   //Mostrar los clientes que compraron en más de una categoria distinta, listando las categorías que cubrieron(no repetir)
+   Map<String, Set<String>> clientesConMasDeUnaCategoria = ventas.stream()
    .collect(Collectors.groupingBy(
-        det -> productos.stream()
+    v -> {
+        String cliente = clientes.stream()
+        .filter ( cli -> cli.getId() == v.getCliente_id())
+        .findFirst()
+        .map(Cliente::getNombre)
+        .orElse(null);
+        return (cliente != null) ? cliente : "Cliente no identificado";
+    },
+    Collectors.flatMapping(
+        v -> v.getDetalles().stream()
+        .map(det -> 
+            productos.stream()
             .filter(p -> p.getId() == det.getProducto_id())
             .findFirst()
-            .map(p -> Categoria_productos.stream()
-            .filter(c-> c.getId() == p.getCategoria_id())
-            .findFirst()
-            .map(Categoria_producto::getNombre)
-            .orElse("Sin categoria"))
-        .orElse("Sin categoria"),
-        Collectors.groupingBy(
-            det -> productos.stream()
-                .filter(p -> p.getId() == det.getProducto_id())
+            .flatMap(p -> Categoria_productos.stream()
+                .filter(c -> c.getId() == p.getCategoria_id())
                 .findFirst()
-                .map(Producto::getNombre)
-                .orElse("Producto desconocido"),
-                Collectors.summingInt(Detalle_venta::getCantidad)
+                .map(Categoria_producto::getNombre)
+            )
+            .orElse("Categoria no relacionada")
         )
-   ))
-   .entrySet().stream()
-   .collect(Collectors.toMap(
-        Map.Entry::getKey,
-        entry -> entry.getValue().entrySet().stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-            .limit(3)
-            .collect(Collectors.toList())
-   ));
-   top3ProductosMasVendidos.forEach((C,L)->{
-    System.out.println("Categoria : " +C);
-    L.forEach(e -> System.out.println("     - " +e.getKey() +" = "+e.getValue()+" cantidades"));
-   });
-  }
-}
+        .filter(Objects::nonNull),
+        Collectors.toSet()
+    )));
+    clientesConMasDeUnaCategoria.entrySet().stream()
+        .filter(entry -> entry.getValue().size() > 1)
+        .forEach(entry -> {
+            System.out.println("Clientes : "+ entry.getKey());
+            entry.getValue().forEach(cat -> System.out.println("    - "+cat));
+        });
 
+}}
