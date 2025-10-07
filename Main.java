@@ -996,20 +996,19 @@ public class Main {
 
    //Objetivo
    //Mostrar los clientes que compraron en más de una categoria distinta, listando las categorías que cubrieron(no repetir)
-   Map<String, Set<String>> clientesConMasDeUnaCategoria = ventas.stream()
+   Map<String, Set<String>> clientesConMasCategorias = ventas.stream()
    .collect(Collectors.groupingBy(
     v -> {
         String cliente = clientes.stream()
-        .filter ( cli -> cli.getId() == v.getCliente_id())
-        .findFirst()
-        .map(Cliente::getNombre)
-        .orElse(null);
-        return (cliente != null) ? cliente : "Cliente no identificado";
+            .filter(cli -> cli.getId() == v.getCliente_id())
+            .findFirst()
+            .map(Cliente::getNombre)
+            .orElse(null);
+            return (cliente != null)? cliente : "Cliente no relacionado";
     },
     Collectors.flatMapping(
-        v -> v.getDetalles().stream()
-        .map(det -> 
-            productos.stream()
+    v -> v.getDetalles().stream()
+        .map(det -> productos.stream()
             .filter(p -> p.getId() == det.getProducto_id())
             .findFirst()
             .flatMap(p -> Categoria_productos.stream()
@@ -1022,11 +1021,12 @@ public class Main {
         .filter(Objects::nonNull),
         Collectors.toSet()
     )));
-    clientesConMasDeUnaCategoria.entrySet().stream()
-        .filter(entry -> entry.getValue().size() > 1)
+    clientesConMasCategorias.entrySet().stream()
+        .filter(entry -> entry.getValue().size() > 2)
         .forEach(entry -> {
-            System.out.println("Clientes : "+ entry.getKey());
-            entry.getValue().forEach(cat -> System.out.println("    - "+cat));
+            System.out.println(" Cliente : " + entry.getKey());
+            entry.getValue().forEach(ls -> System.out.println("     - "+ls));
         });
+
 
 }}
