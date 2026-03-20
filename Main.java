@@ -8,17 +8,18 @@ import java.sql.SQLException;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+// FALTA COLOCAR A LAS DEMÁS SU RESPECTIVA CONEXIÓN TE QUEDASTE EN VENTAS
 
 public class Main {
 
   public static void main(String[] args) {
 
-    String url = "jdbc:sqlite:C:\\Users\\The Jark\\pf-java\\tienda.db"; // CAMBIAR URL A POR UNA ACTUAL PARA QUE ESTE EN DOCKER
+    //DATA PRODUCTOS//
 
     List<Producto> productos = new ArrayList<>();
-    try (Connection conn = DriverManager.getConnection(url);
+    try (Connection conn = DatabaseConfig.getProductosConn();
         Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("Select id, nombre,precio,categoria_id,stock,descripcion,fecha_alta FROM productos")){
+        ResultSet rs = stmt.executeQuery("Select * from PROUDUCTOS")){
 
         while (rs.next()) {
             productos.add(new Producto(
@@ -26,7 +27,7 @@ public class Main {
                     rs.getString("nombre"),
                     rs.getDouble("precio"),
                     rs.getInt("categoria_id"),
-                    rs.getInt("stock"),
+                    rs.getInt("cantidad"),
                     rs.getString("descripcion"),
                     LocalDate.parse(rs.getString("fecha_alta"))
             ));
@@ -38,10 +39,12 @@ public class Main {
         System.out.println("Error al conectar o leer datos de productos: " +e.getMessage());
     }
 
+    // DATA VENTAS // 
+
     List<Venta> ventas = new ArrayList<>();
-    try (Connection conn = DriverManager.getConnection(url);
+    try (Connection conn = DatabaseConfig.getVentasConn();
         Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("Select id, cliente_id,producto_id,empleado_id,fecha,cantidad, precio_total, total_venta FROM ventas")){
+        ResultSet rs = stmt.executeQuery("Select * FROM ventas")){
         while (rs.next()) {
             ventas.add(new Venta(
                 rs.getInt("id"),

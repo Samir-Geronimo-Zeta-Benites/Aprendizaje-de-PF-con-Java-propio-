@@ -5,19 +5,19 @@ public class Producto {
     private String nombre;
     private Double precio;
     private int categoria_id;
-    private int stock;
+    private int cantidad;
     private String descripcion;
     private LocalDate fecha_alta;
 
     
 
-    public Producto(int id, String nombre, Double precio, int categoria_id, int stock, String descripcion,
+    public Producto(int id, String nombre, Double precio, int categoria_id, int cantidad, String descripcion,
             LocalDate fecha_alta) {
         this.id = id;
         this.nombre = nombre;
         this.precio = precio;
         this.categoria_id = categoria_id;
-        this.stock = stock;
+        this.cantidad = cantidad;
         this.descripcion = descripcion;
         this.fecha_alta = fecha_alta;
     }
@@ -70,14 +70,14 @@ public class Producto {
 
 
 
-    public int getStock() {
-        return stock;
+    public int getCantidad() {
+        return cantidad;
     }
 
 
 
-    public void setStock(int stock) {
-        this.stock = stock;
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
     }
 
 
