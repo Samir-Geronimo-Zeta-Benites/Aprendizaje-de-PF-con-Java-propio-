@@ -13,7 +13,7 @@ public class Main {
 
   public static void main(String[] args) {
 
-    String url = "jdbc:sqlite:C:\\Users\\The Jark\\pf-java\\tienda.db";
+    String url = "jdbc:sqlite:C:\\Users\\The Jark\\pf-java\\tienda.db"; // CAMBIAR URL A POR UNA ACTUAL PARA QUE ESTE EN DOCKER
 
     List<Producto> productos = new ArrayList<>();
     try (Connection conn = DriverManager.getConnection(url);
